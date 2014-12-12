@@ -7,6 +7,7 @@ Version: 1.1.1
 Author: Dan Phiffer
 Author URI: http://phiffer.org/
 */
+
 $dir = json_api_dir();
 @include_once "$dir/singletons/api.php";
 @include_once "$dir/singletons/query.php";
@@ -18,7 +19,8 @@ $dir = json_api_dir();
 @include_once "$dir/models/tag.php";
 @include_once "$dir/models/author.php";
 @include_once "$dir/models/attachment.php";
-function json_api_legacy_init() {
+
+function LEGACY_json_api_init() {
   global $json_api;
   if (phpversion() < 5) {
     add_action('admin_notices', 'json_api_php_version_warning');
@@ -31,23 +33,28 @@ function json_api_legacy_init() {
   add_filter('rewrite_rules_array', 'json_api_rewrites');
   $json_api = new JSON_API();
 }
+
 function json_api_php_version_warning() {
   echo "<div id=\"json-api-warning\" class=\"updated fade\"><p>Sorry, JSON API requires PHP version 5.0 or greater.</p></div>";
 }
+
 function json_api_class_warning() {
   echo "<div id=\"json-api-warning\" class=\"updated fade\"><p>Oops, JSON_API class not found. If you've defined a JSON_API_DIR constant, double check that the path is correct.</p></div>";
 }
-function json_api_legacy_activation() {
+
+function LEGACY_json_api_activation() {
   // Add the rewrite rule on activation
   global $wp_rewrite;
   add_filter('rewrite_rules_array', 'json_api_rewrites');
   $wp_rewrite->flush_rules();
 }
-function json_api_legacy_deactivation() {
+
+function LEGACY_json_api_deactivation() {
   // Remove the rewrite rule on deactivation
   global $wp_rewrite;
   $wp_rewrite->flush_rules();
 }
+
 function json_api_rewrites($wp_rules) {
   $base = get_option('json_api_base', 'api');
   if (empty($base)) {
@@ -59,6 +66,7 @@ function json_api_rewrites($wp_rules) {
   );
   return array_merge($json_api_rules, $wp_rules);
 }
+
 function json_api_dir() {
   if (defined('JSON_API_DIR') && file_exists(JSON_API_DIR)) {
     return JSON_API_DIR;
@@ -66,8 +74,10 @@ function json_api_dir() {
     return dirname(__FILE__);
   }
 }
+
 // Add initialization and activation hooks
-add_action('init', 'json_api_init');
-register_activation_hook("$dir/json-api.php", 'json_api_legacy_activation');
-register_deactivation_hook("$dir/json-api.php", 'json_api_legacy_deactivation');
+add_action('init', 'LEGACY_json_api_init');
+register_activation_hook("$dir/json-api.php", 'LEGACY_json_api_activation');
+register_deactivation_hook("$dir/json-api.php", 'LEGACY_json_api_deactivation');
+
 ?>
